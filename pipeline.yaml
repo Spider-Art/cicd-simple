@@ -1,0 +1,31 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-and-deploy
+spec:
+  resources:
+  - name: web-repo
+    type: git
+  - name: image
+    type: image
+  params:
+  - name: deployment-name
+    type: string
+    description: name of the deployment to be patched
+  tasks:
+  - name: build-image
+    taskRef:
+      name: s2i
+      kind: ClusterTask
+    resources:
+      inputs:
+      - name: source
+        resource: web-repo
+      outputs:
+      - name: image
+        resource: image
+    params:
+    - name: BUILDER_IMAGE
+      value: openshift/httpd
+    - name: TLSVERIFY
+      value: "false"
